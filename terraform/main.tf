@@ -122,4 +122,11 @@ resource "aws_dynamodb_table" "challenges" {
     Environment = "Dev"
   }
 }
+resource "aws_s3_object" "background_image" {
+  bucket = var.bucket_name
+  key    = "assets/background.png"
+  source = "${path.module}/assets/background.png"
+  content_type = "image/png"
+}
+
 

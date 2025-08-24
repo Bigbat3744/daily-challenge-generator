@@ -1,12 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Coding Challenge</title>
+ <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-image: url('assets/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    color: white;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
+
+  #challenge {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    color: #333;
+    max-width: 600px;
+    width: 90%;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  button {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #0078D4;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #005A9E;
+  }
+ </style> 
 </head>
 <body>
-  <h1>Today's Challenge</h1>
+  <h1>💻 Daily Coding Challenge</h1>
   <div id="challenge">Loading...</div>
-  <script src="script.js"></script>
+  <button id="getChallengeBtn">🔄 Get New Challenge</button>
+  <button id="markCompletedBtn">✅ Mark as Completed</button>
+
+  <script>
+    const apiUrl = 'https://rayofvvjz4.execute-api.eu-west-2.amazonaws.com/prod/challenge';
+
+    function getChallenge() {
+      console.log('🔄 Get Challenge button clicked');
+      const challengeElement = document.getElementById('challenge');
+      challengeElement.textContent = 'Loading...';
+
+      fetch(apiUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
+        .then(data => {
+          console.log('✅ Challenge received:', data);
+          challengeElement.textContent = data.challenge;
+        })
+        .catch(err => {
+          console.error('❌ Fetch error:', err);
+          challengeElement.textContent = 'Failed to load challenge.';
+        });
+    }
+
+    function markCompleted() {
+      const challenge = document.getElementById('challenge').textContent;
+      if (!challenge || challenge === 'Loading...' || challenge === 'Failed to load challenge.') {
+        alert('No valid challenge to mark as completed.');
+        return;
+      }
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challenge })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to mark challenge');
+        return res.json();
+      })
+      .then(data => {
+        console.log('✅ Challenge marked as completed:', data);
+        alert('Challenge marked as completed!');
+      })
+      .catch(err => {
+        console.error('❌ POST error:', err);
+        alert('Failed to mark challenge.');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('getChallengeBtn').addEventListener('click', getChallenge);
+      document.getElementById('markCompletedBtn').addEventListener('click', markCompleted);
+      getChallenge(); // Load challenge on page load
+    });
+  </script>
 </body>
 </html>
 
